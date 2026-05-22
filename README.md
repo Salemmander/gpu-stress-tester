@@ -31,7 +31,7 @@ In short: optimization is a tool in service of building better stress tests.
 - **Target**: NVIDIA RTX 3080 (future phases will use CUDA and NVML)
 
 ## Build & Run
-      (future phases will use CUDA and NVML)
+
 ```bash
 cmake -B build -S .
 cmake --build build -j
