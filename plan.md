@@ -4,6 +4,14 @@ This document contains the detailed phased roadmap for the project. It is the ca
 
 Each phase is roughly one to two evenings of focused work. Earlier phases are pure modern C++; CUDA enters in Phase 1 and grows from there.
 
+## Project Approach
+
+The primary objective of this project is to build a stress and validation framework capable of pushing GPUs hard and verifying they remain functional and correct under sustained heavy load — the kind of workloads a GPU silicon validation or systems software engineer would use to ensure reliability in real deployments.
+
+As a supporting activity, selected phases include deliberate kernel optimization work. The goal of this optimization is not only to improve performance, but to develop the skills and techniques required to write *efficiently stressful* workloads (for example, kernels that maximize memory throughput, sustain high utilization, or apply pathological access patterns).
+
+This dual-track approach allows meaningful CUDA learning while keeping the overall project aligned with diagnostic, validation, and stress-engineering work.
+
 ## Phase 0 - C++ benchmarking framework (CPU only)
 
 Build the skeleton of the whole tool with no GPU code at all.
@@ -32,6 +40,8 @@ CUDA concepts: kernel launch syntax, host/device memory, `cudaMalloc`, `cudaMemc
 - Verify correctness against the CPU version from Phase 0
 - Measure GFLOPS. It will be far below peak. That is the point.
 
+This phase also serves as a vehicle to learn core CUDA programming patterns (thread indexing, memory access, basic kernel structure) that will later be applied when constructing more aggressive and stressful GPU workloads.
+
 ## Phase 3 - Tiled matrix multiply with shared memory
 
 - Implement `GpuMatmulTiledBenchmark` using shared memory tiling
@@ -40,6 +50,8 @@ CUDA concepts: kernel launch syntax, host/device memory, `cudaMalloc`, `cudaMemc
 
 CUDA concepts: shared memory, `__syncthreads`, tile-based decomposition, occupancy, memory hierarchy.
 
+The optimization techniques learned here (coalesced access, data reuse, memory hierarchy awareness) are directly applicable to writing kernels that can sustain very high memory or compute throughput during stress testing.
+
 ## Phase 4 - Memory bandwidth benchmark
 
 - `GpuMemcpyBandwidthBenchmark`: simple device-to-device copy kernel
@@ -47,6 +59,8 @@ CUDA concepts: shared memory, `__syncthreads`, tile-based decomposition, occupan
 - Try strided vs coalesced access patterns; watch the bandwidth collapse on strided
 
 CUDA concepts: coalesced memory access, memory transactions, vector loads.
+
+This phase begins the core stress work: deliberately pressuring the memory subsystem and understanding how access patterns affect sustained throughput.
 
 ## Phase 5 - PCIe bandwidth benchmark
 
@@ -73,6 +87,8 @@ C++ concepts: integrating a C library cleanly, RAII wrappers around `nvml*` hand
 - Track thermal throttling: log when clock speeds drop under load
 
 C++ concepts: `std::thread`, condition variables, atomics, clean shutdown signaling.
+
+This is the flagship validation phase: sustained heavy load combined with continuous correctness and health monitoring.
 
 ## References
 

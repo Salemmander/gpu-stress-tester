@@ -2,13 +2,17 @@
 
 A modern C++ and CUDA microbenchmark and stress-testing framework for GPUs.
 
-This project is a hands-on portfolio piece for learning and demonstrating strong systems programming skills in modern C++ and CUDA. It focuses on building diagnostic-style workloads that exercise compute units, memory subsystems, and data movement paths while producing measurable performance results.
+This project is a hands-on portfolio piece for learning and demonstrating strong systems programming skills in modern C++ and CUDA. Its primary focus is building workloads that stress GPUs hard and verify they remain functional and correct under sustained heavy load — the kind of diagnostic and validation work done in real GPU systems and silicon validation environments.
 
 Target hardware: NVIDIA RTX 3080 (Ampere, sm_86).
 
 ## Motivation
 
-The goal is to build tools that push GPUs hard and report what comes back — similar to the kind of validation and stress workloads used in real GPU silicon validation. The project serves as both deep technical practice and a demonstration of solid engineering habits: clean interfaces, testing discipline, benchmarking methodology, and incremental delivery.
+The goal is to build a stress and validation framework that can push GPUs to their limits while continuously checking for correctness drift, thermal throttling, and other signs of trouble. 
+
+As a supporting activity, the project includes deliberate kernel optimization work (for example, taking a naive matrix multiply and turning it into a much faster tiled version). This work is not done purely for speed — it is used to develop the skills and techniques needed to write *efficiently stressful* kernels that can sustain very high memory or compute throughput.
+
+In short: optimization is a tool in service of building better stress tests.
 
 ## What I've Learned
 
@@ -16,6 +20,7 @@ The goal is to build tools that push GPUs hard and report what comes back — si
 - **Testing & design for testability** — Writing an abstract benchmark interface, using test doubles (spy pattern), and using `friend` classes to enable strong correctness tests without polluting the public API.
 - **Benchmarking methodology** — Separating setup/teardown from timed work, collecting statistical results (mean + stddev), and writing deterministic verification.
 - **Project infrastructure** — Structuring a real C++ project with CMake, FetchContent, GoogleTest, and clear separation between library code, executables, and tests.
+- **CUDA programming patterns** — Kernel launch, memory hierarchy, shared memory, and optimization techniques — learned in the context of eventually applying them to create aggressive, sustained stress workloads.
 - **Discipline of incremental delivery** — Working in well-defined phases with explicit acceptance criteria.
 
 ## Tech Stack & Tools
@@ -26,7 +31,7 @@ The goal is to build tools that push GPUs hard and report what comes back — si
 - **Target**: NVIDIA RTX 3080 (future phases will use CUDA and NVML)
 
 ## Build & Run
-
+      (future phases will use CUDA and NVML)
 ```bash
 cmake -B build -S .
 cmake --build build -j
