@@ -2,7 +2,7 @@
 
 A CUDA-based GPU stress tester and microbenchmark suite written in modern C++,
 built as a hands-on portfolio piece for the NVIDIA System Software Engineer - GPU
-role (req JR2016824). The phased plan in `README.md` is the canonical roadmap.
+role (req JR2016824). The phased plan in `plan.md` is the canonical roadmap.
 
 Target hardware: NVIDIA RTX 3080 (Ampere, sm_86, 10GB GDDR6X, PCIe Gen4 x16).
 
@@ -130,23 +130,3 @@ Phase 0 acceptance bar:
 When all three pass, Phase 0 is done and Phase 1 (Hello CUDA: vector add wired
 into the framework) can begin.
 
-## Session Handoff — 2026-05-20 (Monitoring + Video Tooling)
-
-**Project state:** Still at the very first commit. Phase 0 C++ scaffolding has not been started locally or on the remote.
-
-**Monitoring tools configured for development and video recording:**
-- `nvtop` installed (preferred tool for nice visuals).
-  Recommended command: `nvtop -d 20 -i` (2s refresh + extra GPU info bar with clocks/PCIe/power).
-- `btop` also has the GPU box enabled (`shown_boxes` includes `gpu0`).
-- Useful fallbacks:
-  - `nvidia-smi -l 1`
-  - `nvidia-smi dmon -s pucmt -d 1000`
-
-**Video goals:** Clear demonstration of sustained high GPU load, VRAM usage, stable clocks (no throttling), power draw, and the stress-test process visible in the monitor.
-
-**When resuming work:**
-- The user will indicate when they are ready to begin Phase 0 implementation.
-- All design decisions, file list, and acceptance criteria for Phase 0 are already documented above.
-- Follow the "Working preferences" and "Conventions" sections strictly.
-
-This handoff section can be removed or updated once active development on the benchmarking framework begins.

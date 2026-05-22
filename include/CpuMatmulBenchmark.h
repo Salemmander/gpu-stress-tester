@@ -21,4 +21,6 @@ private:
   std::vector<float> a_;
   std::vector<float> b_;
   std::vector<float> c_;
+
+  friend class CpuMatmulTestHelper;
 };
