@@ -1,5 +1,6 @@
 #include "BenchmarkRunner.h"
 #include "CpuMatmulBenchmark.h"
+#include "GpuVectorAddBenchmark.h"
 
 #include <cstddef>
 #include <exception>
@@ -42,6 +43,8 @@ int main(int argc, char *argv[]) {
   std::unique_ptr<Benchmark> benchmark;
   if (benchmark_name == "cpu-matmul") {
     benchmark = std::make_unique<CpuMatmulBenchmark>(size);
+  } else if (benchmark_name == "gpu-vector-add") {
+    benchmark = std::make_unique<GpuVectorAddBenchmark>(size);
   } else {
     std::cerr << "Unknown Benchmark: " << benchmark_name << "\n";
     return 1;
