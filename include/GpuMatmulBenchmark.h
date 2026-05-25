@@ -6,15 +6,16 @@
 #include <string>
 #include <vector>
 
-class GpuVectorAddBenchmark : public Benchmark {
+class GpuMatmulBenchmark : public Benchmark {
 public:
-  explicit GpuVectorAddBenchmark(std::size_t n);
+  explicit GpuMatmulBenchmark(std::size_t n);
 
   std::string name() const override;
   void setup() override;
   void run() override;
   void verify() override;
   void teardown() override;
+  double flops_per_iteration() const override;
 
 private:
   std::size_t n_;
@@ -26,5 +27,5 @@ private:
   float *d_b_ = nullptr;
   float *d_c_ = nullptr;
 
-  friend class GpuVectorAddTestHelper;
+  friend class GpuMatmulTestHelper;
 };

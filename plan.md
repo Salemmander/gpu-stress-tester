@@ -20,10 +20,10 @@ Build the skeleton of the whole tool with no GPU code at all.
 - Concrete `CpuMatmulBenchmark` (naive triple loop)
 - `BenchmarkRunner` that times runs with `std::chrono`, computes mean and stddev over N iterations
 - CLI with hand-rolled argument parsing (`--benchmark`, `--size`, `--iterations`)
-- CMake build system, GoogleTest for unit tests
+- CMake build system (no test framework)
 - Proper use of modern C++ (RAII, exceptions, smart pointers, etc.)
 
-C++ concepts exercised: virtual functions, RAII, `std::chrono`, exceptions, `std::vector`, modern initialization, testing with GoogleTest.
+C++ concepts exercised: virtual functions, RAII, `std::chrono`, exceptions, `std::vector`, modern initialization.
 
 ## Phase 1 - Hello CUDA
 

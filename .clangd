@@ -1,3 +1,14 @@
 CompileFlags:
   Add:
     - -I/opt/cuda/include
+    - -Iinclude
+    - -I../include
+    - --cuda-gpu-arch=sm_75
+    - -x
+    - cuda
+  Remove:
+    - -forward-unknown-to-host-compiler
+    - -ccbin=*
+    - --options-file*
+    - --generate-code*
+    - -Xcompiler=*

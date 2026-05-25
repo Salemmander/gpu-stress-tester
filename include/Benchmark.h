@@ -10,4 +10,5 @@ public:
   virtual void run() = 0;
   virtual void verify() = 0;
   virtual void teardown() = 0;
+  virtual double flops_per_iteration() const { return 0.0; }
 };

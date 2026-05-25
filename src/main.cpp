@@ -1,5 +1,6 @@
 #include "BenchmarkRunner.h"
 #include "CpuMatmulBenchmark.h"
+#include "GpuMatmulBenchmark.h"
 #include "GpuVectorAddBenchmark.h"
 
 #include <cstddef>
@@ -45,6 +46,8 @@ int main(int argc, char *argv[]) {
     benchmark = std::make_unique<CpuMatmulBenchmark>(size);
   } else if (benchmark_name == "gpu-vector-add") {
     benchmark = std::make_unique<GpuVectorAddBenchmark>(size);
+  } else if (benchmark_name == "gpu-matmul") {
+    benchmark = std::make_unique<GpuMatmulBenchmark>(size);
   } else {
     std::cerr << "Unknown Benchmark: " << benchmark_name << "\n";
     return 1;
@@ -60,6 +63,10 @@ int main(int argc, char *argv[]) {
               << "Iterations: " << result.iterations << "\n"
               << "Mean: " << result.mean_seconds << " s\n"
               << "Stddev: " << result.stddev_seconds << " s\n";
+
+    if (result.mean_tflops > 0.0) {
+        std::cout << "TFLOPS: " << result.mean_tflops << "\n";
+    }
   } catch (const std::exception &e) {
     std::cerr << "Benchmark failed: " << e.what() << "\n";
     return 1;

@@ -15,7 +15,7 @@ applications a GPU or HPC server would see in its life cycle."
 This project deliberately:
 
 - Starts CPU-only in Phase 0 to demonstrate modern C++ fundamentals (RAII,
-  smart pointers, templates, `std::chrono`, exceptions, GoogleTest, CMake)
+  smart pointers, templates, `std::chrono`, exceptions, CMake)
   before any GPU code is introduced.
 - Writes naive kernels first (Phase 2), then optimizes (Phase 3+), so the
   speedup story and profiling discipline are visible in the git history.
@@ -44,7 +44,7 @@ or premature abstractions. Three repeated lines beats a half-finished template.
 - Warnings: `-Wall -Wextra -Wpedantic`. Treat warnings as errors in CI later.
 - Release: `-O2`. Debug: `-O0 -g`.
 - CMake 3.20+ minimum.
-- GoogleTest via `FetchContent` so the repo builds without a system install.
+- No test framework is used (tests were removed).
 - No CUDA dependencies (`find_package(CUDAToolkit)`, `.cu` files, `nvcc`) enter
   the build until Phase 1. Phase 0 is pure host C++.
 
@@ -61,9 +61,6 @@ gpu-stress-tester/
 │   ├── main.cpp                 # CLI entrypoint
 │   ├── BenchmarkRunner.cpp
 │   └── CpuMatmulBenchmark.cpp
-└── tests/
-    ├── CMakeLists.txt
-    └── test_benchmark.cpp
 ```
 
 ### `Benchmark` interface (agreed shape)
@@ -107,8 +104,7 @@ output lands.
 
 Files to create:
 
-- `CMakeLists.txt` — top level. C++20, GoogleTest via FetchContent, builds the
-  `gpu-stress` binary, registers tests via `ctest`.
+- `CMakeLists.txt` — top level. C++20, builds the `gpu-stress` binary.
 - `include/Benchmark.h` — ABC as described above.
 - `include/BenchmarkRunner.h` + `src/BenchmarkRunner.cpp` — runs a benchmark
   N times, computes mean and stddev, prints a small report.
@@ -116,15 +112,11 @@ Files to create:
   loop `C = A * B` for square matrices, configurable size, `verify()` against
   a slow reference or known small input.
 - `src/main.cpp` — argv parsing, dispatches to the requested benchmark.
-- `tests/CMakeLists.txt` + `tests/test_benchmark.cpp` — at minimum: one test
-  validating `CpuMatmulBenchmark` correctness on a fixed small input, one
-  smoke test for `BenchmarkRunner` using a trivial fake benchmark.
 
 Phase 0 acceptance bar:
 
 1. `cmake -B build -S . && cmake --build build -j` succeeds with no warnings.
-2. `ctest --test-dir build` passes.
-3. `./build/gpu-stress --benchmark cpu-matmul --size 256 --iterations 5`
+2. `./build/gpu-stress --benchmark cpu-matmul --size 256 --iterations 5`
    runs end-to-end and prints a timing report with mean and stddev.
 
 When all three pass, Phase 0 is done and Phase 1 (Hello CUDA: vector add wired

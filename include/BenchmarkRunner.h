@@ -9,6 +9,7 @@ public:
     std::size_t iterations;
     double mean_seconds;
     double stddev_seconds;
+    double mean_tflops;
   };
 
   explicit BenchmarkRunner(std::size_t iterations);

@@ -17,9 +17,9 @@ In short: optimization is a tool in service of building better stress tests.
 ## What I've Learned
 
 - **Modern C++ fundamentals** — RAII, smart pointers, `std::chrono`, exceptions, virtual interfaces, and clean resource management.
-- **Testing & design for testability** — Writing an abstract benchmark interface, using test doubles (spy pattern), and using `friend` classes to enable strong correctness tests without polluting the public API.
 - **Benchmarking methodology** — Separating setup/teardown from timed work, collecting statistical results (mean + stddev), and writing deterministic verification.
-- **Project infrastructure** — Structuring a real C++ project with CMake, FetchContent, GoogleTest, and clear separation between library code, executables, and tests.
+- **Benchmarking methodology** — Separating setup/teardown from timed work, collecting statistical results (mean + stddev), and writing deterministic verification.
+- **Project infrastructure** — Structuring a real C++ project with CMake and clear separation between library code and executables.
 - **CUDA programming patterns** — Kernel launch, memory hierarchy, shared memory, and optimization techniques — learned in the context of eventually applying them to create aggressive, sustained stress workloads.
 - **Discipline of incremental delivery** — Working in well-defined phases with explicit acceptance criteria.
 
@@ -27,7 +27,7 @@ In short: optimization is a tool in service of building better stress tests.
 
 - **Language**: C++20
 - **Build**: CMake 3.20+
-- **Testing**: GoogleTest (via FetchContent)
+- **Testing**: None (no test framework used)
 - **Target**: NVIDIA RTX 3080 (future phases will use CUDA and NVML)
 
 ## Build & Run
@@ -36,7 +36,6 @@ In short: optimization is a tool in service of building better stress tests.
 cmake -B build -S .
 cmake --build build -j
 ./build/gpu-stress --benchmark cpu-matmul --size 256 --iterations 5
-ctest --test-dir build
 ```
 
 ## Roadmap
