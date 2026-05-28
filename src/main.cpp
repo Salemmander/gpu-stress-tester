@@ -1,11 +1,14 @@
 #include "BenchmarkRunner.h"
 #include "CpuMatmulBenchmark.h"
 #include "GpuMatmulBenchmark.h"
+#include "GpuMatmulTiledBenchmark.h"
 #include "GpuVectorAddBenchmark.h"
 
 #include <cstddef>
 #include <exception>
+#include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -41,13 +44,19 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  // clang-format off
+  std::map<std::string, std::function<std::unique_ptr<Benchmark>(std::size_t)>> benchmarks = {
+      {"cpu-matmul",       [](std::size_t s){ return std::make_unique<CpuMatmulBenchmark>(s); }},
+      {"gpu-vector-add",   [](std::size_t s){ return std::make_unique<GpuVectorAddBenchmark>(s); }},
+      {"gpu-matmul",       [](std::size_t s){ return std::make_unique<GpuMatmulBenchmark>(s); }},
+      {"gpu-matmul-tiled", [](std::size_t s){ return std::make_unique<GpuMatmulTiledBenchmark>(s); }},
+  };
+  // clang-format on
+
   std::unique_ptr<Benchmark> benchmark;
-  if (benchmark_name == "cpu-matmul") {
-    benchmark = std::make_unique<CpuMatmulBenchmark>(size);
-  } else if (benchmark_name == "gpu-vector-add") {
-    benchmark = std::make_unique<GpuVectorAddBenchmark>(size);
-  } else if (benchmark_name == "gpu-matmul") {
-    benchmark = std::make_unique<GpuMatmulBenchmark>(size);
+  auto it = benchmarks.find(benchmark_name);
+  if (it != benchmarks.end()) {
+    benchmark = it->second(size);
   } else {
     std::cerr << "Unknown Benchmark: " << benchmark_name << "\n";
     return 1;
@@ -65,7 +74,7 @@ int main(int argc, char *argv[]) {
               << "Stddev: " << result.stddev_seconds << " s\n";
 
     if (result.mean_tflops > 0.0) {
-        std::cout << "TFLOPS: " << result.mean_tflops << "\n";
+      std::cout << "TFLOPS: " << result.mean_tflops << "\n";
     }
   } catch (const std::exception &e) {
     std::cerr << "Benchmark failed: " << e.what() << "\n";

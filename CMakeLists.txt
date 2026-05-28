@@ -12,8 +12,10 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-Wno-pedantic")
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 add_library(
-  gpu-stress-lib STATIC src/BenchmarkRunner.cpp src/CpuMatmulBenchmark.cpp
-                        src/GpuVectorAddBenchmark.cu src/GpuMatmulBenchmark.cu)
+  gpu-stress-lib STATIC
+  src/BenchmarkRunner.cpp src/CpuMatmulBenchmark.cpp
+  src/GpuVectorAddBenchmark.cu src/GpuMatmulBenchmark.cu
+  src/GpuMatmulTiledBenchmark.cu)
 target_include_directories(gpu-stress-lib PUBLIC include)
 
 # Suppress noisy pedantic warnings from nvcc-generated code (common when using

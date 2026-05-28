@@ -122,3 +122,54 @@ Phase 0 acceptance bar:
 When all three pass, Phase 0 is done and Phase 1 (Hello CUDA: vector add wired
 into the framework) can begin.
 
+
+## Session Handoff — 2026-05-25 (Phase 3 progress)
+
+**Current Project State**
+- Phase 2 (Naive matmul): Complete. `GpuMatmulBenchmark` reaches ~1.26 TFLOPS at n=2048.
+- Phase 3 (Tiled matmul): In active development. `GpuMatmulTiledBenchmark` implemented with shared memory tiling.
+
+**Recent Work Completed**
+- Full implementation of tiled kernel (`matmul_tiled`) with cooperative tile loading into shared memory (`As`/`Bs`), `__syncthreads()`, and inner compute loop.
+- Separate class `GpuMatmulTiledBenchmark` created (header + .cu).
+- Refactored benchmark dispatch in `main.cpp` from long if-else chain into a clean `std::map` called `benchmarks` (much easier to add new kernels).
+- Added `CMakePresets.json` (minimal dev preset with g++-15).
+- Removed entire `tests/` directory and all GoogleTest integration (per user preference).
+- Extensive Nsight Compute profiling (both CLI and GUI) comparing naive vs tiled versions.
+- Updated CLAUDE.md, plan.md, and README.md to reflect removal of tests and current state.
+- Cleaned `.gitignore` significantly.
+
+**Key Findings from Profiling (n=2048)**
+- Naive: ~1.26 TFLOPS
+- Tiled TILE_SIZE=16 (no padding): Best result so far at ~1.51 TFLOPS
+- Tiled TILE_SIZE=32: Regressed to ~1.02 TFLOPS with high variance (stddev often 7-8ms on ~17-19ms runs)
+- Massive win on memory traffic: Global loads dropped ~94% with tiling (Nsight confirms this clearly).
+- However, L1 hit rate dropped significantly (87% → ~51%).
+- At 32x32: Very low occupancy — theoretical and achieved active warps both ~33%.
+- Millions of shared memory bank conflicts reported at 32 (4M+ in one launch).
+- Padding (+1 and +4) has not improved wall time (and sometimes made things slightly worse, likely due to occupancy).
+
+**Current Blockers / Issues**
+- TILE_SIZE=32 is slower than 16 despite much better memory traffic numbers. Root cause appears to be occupancy collapse + shared memory pressure, not just bank conflicts.
+- High timing variance on larger tile sizes.
+- Still requires `sudo` for `ncu` (permission issue on this machine; modprobe fix attempted but not resolved).
+- CLAUDE.md had duplicated old handoff text appended at one point (cleaned up).
+
+**Next Steps (recommended order)**
+1. Decide whether to double down on fixing TILE_SIZE=32 (try rectangular blocks like 32x16, better padding strategy, occupancy tuning) or go back and polish the 16 version.
+2. Use Nsight Compute reports (we have `profile_2048.ncu-rep` and `profile_tiled32_2048.ncu-rep`) to compare occupancy, shared memory throughput, and bank conflicts in detail.
+3. Once a clearly superior tiled version exists, run head-to-head Nsight comparisons with the same metrics file.
+4. Consider trying other tile sizes or launch configurations.
+
+**Files of Interest**
+- `src/GpuMatmulTiledBenchmark.cu` (main kernel + class)
+- `src/main.cpp` (now uses clean `benchmarks` map)
+- `metrics.txt` (current profiling metrics)
+- `profile_*.ncu-rep` files in root (for GUI analysis)
+
+**Working Preferences (unchanged)**
+- User prefers guided, section-by-section help when writing CUDA code.
+- Likes to write most of the code themselves.
+- Prefers minimal, readable code over heavy abstractions when possible.
+- Using `sudo ncu` as temporary workaround for permission issues.
+
