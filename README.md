@@ -42,8 +42,3 @@ cmake --build build -j
 
 The full detailed implementation plan lives in [plan.md](plan.md).
 
-## References
-
-- NVIDIA CUDA documentation and best practices guides
-- Kirk & Hwu — *Programming Massively Parallel Processors*
-- NVIDIA Nsight Compute and NVML documentation
