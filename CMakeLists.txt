@@ -21,7 +21,8 @@ target_include_directories(gpu-stress-lib PUBLIC include)
 # Suppress noisy pedantic warnings from nvcc-generated code (common when using
 # -Wpedantic with CUDA)
 target_compile_options(
-  gpu-stress-lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=-Wno-pedantic>)
+  gpu-stress-lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-lineinfo
+                         -Xcompiler=-Wno-pedantic>)
 
 add_executable(gpu-stress src/main.cpp)
 target_link_libraries(gpu-stress PRIVATE gpu-stress-lib)
