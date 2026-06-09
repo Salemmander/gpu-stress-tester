@@ -4,19 +4,19 @@
 #include <sstream>
 
 #define TILE_SIZE 16
+#define COLS_PER_THREAD 2
 
 __global__ void matmul_tiled(const float *a, const float *b, float *c, int n) {
   int tx = threadIdx.x;
   int ty = threadIdx.y;
 
   int row = blockIdx.y * TILE_SIZE + ty;
-  int col = blockIdx.x * (TILE_SIZE * 2) + tx;
+  int col = blockIdx.x * (TILE_SIZE * COLS_PER_THREAD) + tx;
 
   __shared__ float As[TILE_SIZE][TILE_SIZE];
-  __shared__ float Bs[TILE_SIZE][TILE_SIZE * 2];
+  __shared__ float Bs[TILE_SIZE][TILE_SIZE * COLS_PER_THREAD];
 
-  float sum0 = 0.0f;
-  float sum1 = 0.0f;
+  float sums[COLS_PER_THREAD] = {};
 
   for (int t = 0; t < (n + TILE_SIZE - 1) / TILE_SIZE; t++) {
 
@@ -32,34 +32,39 @@ __global__ void matmul_tiled(const float *a, const float *b, float *c, int n) {
 
     // Load tile of B into Bs
     int bRow = t * TILE_SIZE + ty;
-    int bCol0 = blockIdx.x * (TILE_SIZE * 2) + tx;
-    int bCol1 = bCol0 + TILE_SIZE;
 
-    if (bRow < n && bCol0 < n) {
-      Bs[ty][tx] = b[bRow * n + bCol0];
-    } else {
-      Bs[ty][tx] = 0.0f;
-    }
-    if (bRow < n && bCol1 < n) {
-      Bs[ty][tx + TILE_SIZE] = b[bRow * n + bCol1];
-    } else {
-      Bs[ty][tx + TILE_SIZE] = 0.0f;
+#pragma unroll
+    for (int j = 0; j < COLS_PER_THREAD; j++) {
+      int bCol =
+          blockIdx.x * (TILE_SIZE * COLS_PER_THREAD) + tx + j * TILE_SIZE;
+      if (bRow < n && bCol < n) {
+        Bs[ty][tx + j * TILE_SIZE] = b[bRow * n + bCol];
+      } else {
+        Bs[ty][tx + j * TILE_SIZE] = 0.0f;
+      }
     }
 
     __syncthreads();
 
+#pragma unroll
     for (int k = 0; k < TILE_SIZE; k++) {
-      sum0 += As[ty][k] * Bs[k][tx];
-      sum1 += As[ty][k] * Bs[k][tx + TILE_SIZE];
+      float aval = As[ty][k];
+
+#pragma unroll
+      for (int j = 0; j < COLS_PER_THREAD; j++) {
+        sums[j] += aval * Bs[k][tx + j * TILE_SIZE];
+      }
     }
 
     __syncthreads();
   }
 
-  if (row < n && col < n)
-    c[row * n + col] = sum0;
-  if (row < n && col + TILE_SIZE < n)
-    c[row * n + col + TILE_SIZE] = sum1;
+#pragma unroll
+  for (int j = 0; j < COLS_PER_THREAD; j++) {
+    if (row < n && col + j * TILE_SIZE < n) {
+      c[row * n + col + j * TILE_SIZE] = sums[j];
+    }
+  }
 }
 
 GpuMatmulTiledBenchmark::GpuMatmulTiledBenchmark(std::size_t n) : n_{n} {};
@@ -87,7 +92,8 @@ void GpuMatmulTiledBenchmark::run() {
                         cudaMemcpyHostToDevice));
 
   dim3 block(TILE_SIZE, TILE_SIZE);
-  dim3 grid((n_ + TILE_SIZE * 2 - 1) / (TILE_SIZE * 2),
+  dim3 grid((n_ + TILE_SIZE * COLS_PER_THREAD - 1) /
+                (TILE_SIZE * COLS_PER_THREAD),
             (n_ + TILE_SIZE - 1) / TILE_SIZE);
 
   matmul_tiled<<<grid, block>>>(d_a_, d_b_, d_c_, static_cast<int>(n_));
