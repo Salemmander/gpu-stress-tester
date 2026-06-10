@@ -10,6 +10,7 @@ public:
     double mean_seconds;
     double stddev_seconds;
     double mean_tflops;
+    double mean_gbps;
   };
 
   explicit BenchmarkRunner(std::size_t iterations);

@@ -2,6 +2,7 @@
 #include "CpuMatmulBenchmark.h"
 #include "GpuMatmulBenchmark.h"
 #include "GpuMatmulTiledBenchmark.h"
+#include "GpuMemcpyBandwidthBenchmark.h"
 #include "GpuVectorAddBenchmark.h"
 
 #include <cstddef>
@@ -50,6 +51,7 @@ int main(int argc, char *argv[]) {
       {"gpu-vector-add",   [](std::size_t s){ return std::make_unique<GpuVectorAddBenchmark>(s); }},
       {"gpu-matmul",       [](std::size_t s){ return std::make_unique<GpuMatmulBenchmark>(s); }},
       {"gpu-matmul-tiled", [](std::size_t s){ return std::make_unique<GpuMatmulTiledBenchmark>(s); }},
+      {"gpu-memcpy-bandwidth", [](std::size_t s){ return std::make_unique<GpuMemcpyBandwidthBenchmark>(s); }},
   };
   // clang-format on
 
@@ -73,9 +75,12 @@ int main(int argc, char *argv[]) {
               << "Mean: " << result.mean_seconds << " s\n"
               << "Stddev: " << result.stddev_seconds << " s\n";
 
-    if (result.mean_tflops > 0.0) {
+    if (result.mean_tflops > 0.0)
       std::cout << "TFLOPS: " << result.mean_tflops << "\n";
-    }
+
+    if (result.mean_gbps > 0.0)
+      std::cout << "GB/s: " << result.mean_gbps << "\n";
+
   } catch (const std::exception &e) {
     std::cerr << "Benchmark failed: " << e.what() << "\n";
     return 1;

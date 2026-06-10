@@ -11,4 +11,5 @@ public:
   virtual void verify() = 0;
   virtual void teardown() = 0;
   virtual double flops_per_iteration() const { return 0.0; }
+  virtual double bytes_per_iteration() const { return 0.0; }
 };

@@ -15,7 +15,7 @@ add_library(
   gpu-stress-lib STATIC
   src/BenchmarkRunner.cpp src/CpuMatmulBenchmark.cpp
   src/GpuVectorAddBenchmark.cu src/GpuMatmulBenchmark.cu
-  src/GpuMatmulTiledBenchmark.cu)
+  src/GpuMatmulTiledBenchmark.cu src/GpuMemcpyBandwidthBenchmark.cu)
 target_include_directories(gpu-stress-lib PUBLIC include)
 
 # Suppress noisy pedantic warnings from nvcc-generated code (common when using

@@ -52,5 +52,10 @@ BenchmarkRunner::Result BenchmarkRunner::run(Benchmark &benchmark) {
     mean_tflops = (flops_per_iter / mean) / 1e12;
   }
 
-  return Result{iterations_, mean, stddev, mean_tflops};
+  double mean_gbps = 0.0;
+  const double bytes_per_iter = benchmark.bytes_per_iteration();
+  if (bytes_per_iter > 0.0 && mean > 0.0)
+    mean_gbps = (bytes_per_iter / mean) / 1e9;
+
+  return Result{iterations_, mean, stddev, mean_tflops, mean_gbps};
 }
